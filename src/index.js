@@ -1,17 +1,42 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React, { useContext } from "react";
+import ReactDOM from "react-dom";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from "react-router-dom";
+import { Nav, Allposts, Home, SignupOrLogin } from "./components";
+import AuthProvider, { AuthContext } from "./context/AuthContext";
+import "./index.css";
+
+function App() {
+  const { isLoggedIn } = useContext(AuthContext);
+  return (
+    <div>
+      <Router>
+        <Nav />
+        <Switch>
+          <Route exact path="/" component={Home} />
+          <Route exact path="/home" component={Home} />
+          {!isLoggedIn && (
+            <>
+              <Route path="/login" component={SignupOrLogin} />
+              <Route path="/signup" component={SignupOrLogin} />
+              <Route path="/posts" render={() => <Redirect to="/home" />} />
+            </>
+          )}
+          {isLoggedIn && <Route path="/posts" component={Allposts} />}
+          <Route path="*" render={() => <Redirect to="/home" />} />
+        </Switch>
+      </Router>
+    </div>
+  );
+}
 
 ReactDOM.render(
-  <React.StrictMode>
+  <AuthProvider>
     <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+  </AuthProvider>,
+  document.getElementById("root")
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
